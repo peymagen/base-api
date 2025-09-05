@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - closed   # Trigger when PR is closed (merged)
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -30,5 +36,5 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
+          local-dir: ./ 
           server-dir: /base_api/
