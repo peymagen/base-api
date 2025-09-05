@@ -3,7 +3,7 @@ name: CI/CD - Express TS to cPanel
 on:
   push:
     branches:
-      - main   # Only deploy when pushing to main
+      - main
 
 jobs:
   build-and-deploy:
@@ -27,20 +27,18 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
-      - name: Deploy dist to cPanel via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist   # compiled files
-          server-dir: /base_api/dist
+      - name: Prepare Upload Folder
+        run: |
+          mkdir upload
+          cp -r dist upload/
+          cp package.json upload/
+          cp .env upload/   # if needed
 
-      - name: Deploy package.json (for server dependencies)
+      - name: Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./package.json
-          server-dir: /base_api/yourapp
+          local-dir: ./upload
+          server-dir: /base_api
