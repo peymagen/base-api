@@ -34,7 +34,7 @@ const initApp = async (): Promise<void> => {
     res.send({ status: "ok" });
   });
   app.get("/ci", (req: Request, res: Response) => {
-    res.send({ status: "Upload" });
+    res.send({ status: "Uploads" });
   });
 
   // error handler
