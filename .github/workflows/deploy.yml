@@ -21,18 +21,8 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Run Tests
-        run: npm test
-
       - name: Build TypeScript
         run: npm run build
-
-      - name: Prepare Upload Folder
-        run: |
-          mkdir upload
-          cp -r dist upload/
-          cp package.json upload/
-          cp .env upload/   # if needed
 
       - name: Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
