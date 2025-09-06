@@ -24,20 +24,29 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Install Dependencies & Build
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy and Restart Node.js App
+      - name: Deploy Build Files to Server
+        run: |
+          rsync -avz --delete \
+            dist/ \
+            package.json \
+            package-lock.json \
+            ${{ secrets.FTP_USERNAME }}@${{ secrets.SSH_HOST }}:~/base_api/
+
+      - name: Restart Node.js App
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ~/base_api   # Your project directory
-            git pull origin main
-            npm install --legacy-peer-deps
-            npm run build
-
-            # Restart Node.js app (Passenger way)
+            cd ~/base_api
+            npm install --legacy-peer-deps --production
             mkdir -p tmp
             touch tmp/restart.txt
           EOF
