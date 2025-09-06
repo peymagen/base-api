@@ -1,4 +1,4 @@
-name: CI/CD - Express TS to cPanel
+name: CI/CD - Express TS to cPanel via SSH
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
     types:
-      - closed   # Trigger when PR is closed (merged)
+      - closed
     branches:
       - main
 
@@ -24,17 +24,20 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build TypeScript
-        run: npm run build
-
-      - name: Deploy to cPanel via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./ 
-          server-dir: /base_api/
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy and Restart Node.js App
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} << 'EOF'
+            cd ~/base_api   # Your project directory
+            git pull origin main
+            npm install --legacy-peer-deps
+            npm run build
+
+            # Restart Node.js app (Passenger way)
+            mkdir -p tmp
+            touch tmp/restart.txt
+          EOF
