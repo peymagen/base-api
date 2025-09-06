@@ -41,6 +41,7 @@ jobs:
             dist/ \
             package.json \
             package-lock.json \
+            .env \
             ${{ secrets.FTP_USERNAME }}@${{ secrets.SSH_HOST }}:~/base_api/
 
       - name: Restart Node.js App
