@@ -31,7 +31,7 @@ jobs:
 
       - name: Deploy and Restart Node.js App
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ~/base_api   # Your project directory
             git pull origin main
             npm install --legacy-peer-deps
